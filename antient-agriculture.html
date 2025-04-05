@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>华夏农耕文明</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #8d6e63;
+            --secondary-color: #d7ccc8;
+            --accent-color: #a1887f;
+            --dark-color: #5d4037;
+            --light-color: #efebe9;
+            --text-color: #4e342e;
+            --text-light: #795548;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            line-height: 1.8;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="none" stroke="%23d7ccc8" stroke-width="0.5" d="M0,0 L100,0 L100,100 L0,100 Z M10,10 L90,10 L90,90 L10,90 Z" opacity="0.3"/></svg>');
+            background-size: 100px 100px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(rgba(93, 64, 55, 0.8), rgba(93, 64, 55, 0.9)), url('pictures/1101.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--light-color);
+            padding: 100px 0 150px;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%);
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 4rem;
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeInDown 1s ease-out;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            position: relative;
+            animation: fadeIn 1.5s ease-out;
+            color: var(--secondary-color);
+        }
+        
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--secondary-color);
+            font-size: 2.5rem;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            padding: 40px 0 80px;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 80px;
+            color: var(--dark-color);
+            position: relative;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background-color: var(--accent-color);
+            margin: 20px auto;
+            border-radius: 3px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 50px;
+            margin-bottom: 80px;
+        }
+        
+        .feature-card {
+            background: white;
+            height: 600px;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid var(--dark-color);
+            clip-path: polygon(
+                0 0, 100% 0, 100% 80%, 
+                90% 90%, 80% 85%, 
+                70% 90%, 60% 85%, 
+                50% 90%, 40% 85%, 
+                30% 90%, 20% 85%, 
+                10% 90%, 0 80%
+            );
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="none" stroke="%235d4037" stroke-width="0.5" d="M0,0 L100,0 L100,100 L0,100 Z" opacity="0.1"/></svg>');
+            pointer-events: none;
+        }
+        
+        .feature-img {
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .feature-img::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+        }
+        
+        .feature-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+        
+        .feature-card:hover .feature-img img {
+            transform: scale(1.1);
+        }
+        
+        .feature-content {
+            padding: 30px;
+            position: relative;
+            background: white;
+        }
+        
+        .feature-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .feature-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+        
+        .feature-desc {
+            color: var(--text-light);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--dark-color);
+            color: white;
+            border-radius: 0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Noto Serif SC', serif;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--dark-color);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--dark-color);
+            color: var(--dark-color);
+        }
+        
+        .btn-outline:hover {
+            background: var(--dark-color);
+            color: white;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--light-color);
+            border-radius: 0;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 50px;
+            position: relative;
+            transform: translateY(50px);
+            transition: transform 0.5s ease;
+            border: 2px solid var(--dark-color);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+            font-family: sans-serif;
+        }
+        
+        .close-modal:hover {
+            color: var(--dark-color);
+        }
+        
+        .modal-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--dark-color);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .modal-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+        
+        .modal-text {
+            margin-bottom: 25px;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .modal-img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            margin: 30px 0;
+            border: 1px solid var(--secondary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .tech-item {
+            background: white;
+            padding: 20px;
+            border: 1px solid var(--secondary-color);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .tech-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tech-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 1px solid var(--secondary-color);
+        }
+        
+        .tech-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+        
+        .tech-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+        
+        .tech-link {
+            display: inline-block;
+            padding: 8px 20px;
+            background-color: var(--dark-color);
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .tech-link:hover {
+            background-color: var(--primary-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 60px 0 40px;
+            text-align: center;
+            clip-path: polygon(0 20%, 10% 10%, 20% 15%, 30% 10%, 40% 15%, 50% 10%, 60% 15%, 70% 10%, 80% 15%, 90% 10%, 100% 20%, 100% 100%, 0 100%);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .footer-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 1.1rem;
+            position: relative;
+        }
+        
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+        
+        .footer-link:hover::after {
+            width: 100%;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .footer-copy {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-20px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-card {
+                clip-path: polygon(
+                    0 0, 100% 0, 100% 90%, 
+                    95% 95%, 90% 90%, 
+                    85% 95%, 80% 90%, 
+                    75% 95%, 70% 90%, 
+                    65% 95%, 60% 90%, 
+                    55% 95%, 50% 90%,
+                    45% 95%, 40% 90%,
+                    35% 95%, 30% 90%,
+                    25% 95%, 20% 90%,
+                    15% 95%, 10% 90%,
+                    5% 95%, 0 90%
+                );
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
+            
+            .modal-title {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+        .home-button {
+            font-family: '楷体',serif;
+            position: fixed;
+            bottom: 40px; /* 距离页面底部10px */
+            left: 40px;   /* 距离页面左侧10px，即左下角 */
+            padding: 10px 30px;
+            background-color: #5d40377a;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            font-size: 25px;
+            font-weight: 400;
+        }
+        .home-button:hover {
+            background-color: #5d4037;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>华夏农耕文明</h1>
+            <p class="subtitle">探索五千年农耕智慧，感受中华文明的深厚底蕴，了解古代农业如何滋养华夏子孙</p>
+        </div>
+        <div class="scroll-down" id="scrollDown">↓</div>
+    </header>
+    
+    <section class="main-content">
+        <div class="container">
+            <h2 class="section-title">农耕文明精髓</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-modal="ancient-agriculture">
+                    <div class="feature-img">
+                        <img src="pictures/agriculture1-homepage.jpg" alt="古代农业组成">
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">古代农业组成</h3>
+                        <p class="feature-desc">了解中国古代农业的基本构成，包括耕作制度、农具演变、作物种类等核心要素。</p>
+                        
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-modal="ancient-tech">
+                    <div class="feature-img">
+                        <img src="pictures/agriculture2-homepage.jpg" alt="古代农业科技">
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">古代农业科技</h3>
+                        <p class="feature-desc">探索中国古代农业的智慧结晶，从水利工程到农具创新，感受古人的科技智慧。</p>
+                        
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-modal="dynasty-wisdom">
+                    <div class="feature-img">
+                        <img src="pictures/agriculture4-homepage.jpg" alt="历代农业智慧">
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">历代农业智慧</h3>
+                        <p class="feature-desc">领略不同朝代农业发展的特色与成就，感受中华农耕文明的演进历程。</p>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 古代农业组成模态框 -->
+    <div class="modal" id="ancient-agriculture">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">古代农业组成</h2>
+            <img src="pictures/agriculture2-homepage.jpg" alt="古代农业组成" class="modal-img">
+            <p class="modal-text">中国古代农业是一个完整的系统，由耕作制度、农具发展、作物种植、畜牧养殖等多个方面组成，形成了独特的农耕文明。</p>
+            
+            <h3>耕作制度</h3>
+            <p class="modal-text">中国古代形成了"耕三余一"的耕作制度，即三年耕种，一年休耕，以恢复地力。北方旱作农业以粟、麦为主，南方水田农业则以水稻种植为核心。</p>
+            
+            <h3>农具演变</h3>
+            <p class="modal-text">从石器时代的石斧、石锄，到青铜时代的青铜农具，再到铁器时代的铁犁、铁锄，农具的演变反映了农业技术的进步。汉代发明的犁壁和唐代的曲辕犁是农具发展的重要里程碑。</p>
+            
+            <h3>作物种类</h3>
+            <p class="modal-text">中国古代形成了"五谷"的概念，包括稻、黍、稷、麦、菽。随着丝绸之路的开通，胡麻、葡萄、苜蓿等作物传入中国，丰富了农业结构。</p>
+            
+            <h3>畜牧养殖</h3>
+            <p class="modal-text">中国古代形成了"六畜"的养殖传统，包括马、牛、羊、猪、狗、鸡。畜牧业不仅提供肉食，还为农业提供畜力，形成了农牧结合的生产模式。</p>
+            
+            <h3>农业经济</h3>
+            <p class="modal-text">古代农业经济以自给自足的小农经济为主，同时形成了以粮食为主的赋税制度。唐宋以后，商品性农业逐渐发展，经济作物如茶、桑、棉的种植日益重要。</p>
+        </div>
+    </div>
+    
+    <!-- 古代农业科技模态框 -->
+    <div class="modal" id="ancient-tech">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">古代农业科技</h2>
+            <img src="pictures/1102.jpg" alt="古代农业科技" class="modal-img">
+            <p class="modal-text">中国古代农业科技成就斐然，在水利工程、农具创新、耕作技术等方面都有卓越创造，为世界农业文明做出了重要贡献。</p>
+            
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <img src="pictures/都江堰.jpg" alt="都江堰" class="tech-img">
+                    <h3 class="tech-title">都江堰</h3>
+                    <p class="tech-desc">战国时期李冰父子修建的综合性水利工程，至今仍在发挥作用。</p>
+                    <a href="https://baike.baidu.com/item/%E9%83%BD%E6%B1%9F%E5%A0%B0/122963" class="tech-link" target="_blank">查看详情</a>
+                </div>
+                
+                <div class="tech-item">
+                    <img src="pictures/曲辕犁.jpg" alt="曲辕犁" class="tech-img">
+                    <h3 class="tech-title">曲辕犁</h3>
+                    <p class="tech-desc">唐代发明的耕作农具，大大提高了耕作效率，是农具史上的重大革新。</p>
+                    <a href="https://baike.baidu.com/item/%E6%9B%B2%E8%BE%95%E7%8A%81/2047771" class="tech-link" target="_blank">查看详情</a>
+                </div>
+                
+                <div class="tech-item">
+                    <img src="pictures/龙骨水车.jpg" alt="龙骨水车" class="tech-img">
+                    <h3 class="tech-title">龙骨水车</h3>
+                    <p class="tech-desc">东汉发明的灌溉工具，可将低处的水提升到高处，解决了山地灌溉难题。</p>
+                    <a href="https://baike.baidu.com/item/%E9%BE%99%E9%AA%A8%E8%BD%A6/5586133?fromtitle=%E9%BE%99%E9%AA%A8%E6%B0%B4%E8%BD%A6&fromid=1012395" class="tech-link" target="_blank">查看详情</a>
+                </div>
+                
+                <div class="tech-item">
+                    <img src="pictures/代田法.jpg" alt="代田法" class="tech-img">
+                    <h3 class="tech-title">代田法</h3>
+                    <p class="tech-desc">汉代赵过创立的耕作方法，通过轮作休耕保持地力，提高产量。</p>
+                    <a href="https://baike.baidu.com/item/%E4%BB%A3%E7%94%B0%E6%B3%95?fromModule=lemma_search-box" class="tech-link" target="_blank">查看详情</a>
+                </div>
+                
+                <div class="tech-item">
+                    <img src="pictures/区田法.jpg" alt="区田法" class="tech-img">
+                    <h3 class="tech-title">区田法</h3>
+                    <p class="tech-desc">西汉氾胜之总结的耕作技术，通过深耕细作、集中施肥提高单位面积产量。</p>
+                    <a href="https://baike.baidu.com/item/%E5%8C%BA%E7%94%B0%E6%B3%95?fromModule=lemma_search-box" class="tech-link" target="_blank">查看详情</a>
+                </div>
+                
+                <div class="tech-item">
+                    <img src="pictures/梯田.jpg" alt="梯田技术" class="tech-img">
+                    <h3 class="tech-title">梯田技术</h3>
+                    <p class="tech-desc">古代山地农业的智慧结晶，有效防止水土流失，扩大耕地面积。</p>
+                    <a href="https://baike.baidu.com/item/%E6%A2%AF%E7%94%B0/17813?fromModule=lemma_search-box" class="tech-link" target="_blank">查看详情</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 历代农业智慧模态框 -->
+    <div class="modal" id="dynasty-wisdom">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">历代农业智慧</h2>
+            <img src="https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="历代农业智慧" class="modal-img">
+            <p class="modal-text">中国历代王朝都重视农业发展，在不同历史时期形成了各具特色的农业技术和制度，共同构成了中华农耕文明的丰富内涵。</p>
+            
+            <h3>先秦时期</h3>
+            <p class="modal-text">夏商周时期，农业从原始采集狩猎向定居农耕转变，形成了"井田制"。春秋战国时期，铁器广泛使用，牛耕技术推广，都江堰、郑国渠等大型水利工程兴建。</p>
+            
+            <h3>秦汉时期</h3>
+            <p class="modal-text">秦统一后推行"重农抑商"政策，汉代赵过推广"代田法"，氾胜之总结"区田法"，《氾胜之书》成为现存最早农书。铁制农具普及，犁耕技术成熟。</p>
+            
+            <h3>魏晋南北朝</h3>
+            <p class="modal-text">《齐民要术》系统总结了北方农业技术，江南地区开始开发，形成稻麦轮作制。水碾、水碓等水力机械广泛应用，农产品加工业发展。</p>
+            
+            <h3>隋唐时期</h3>
+            <p class="modal-text">曲辕犁发明并推广，江东犁成为南方水田耕作主要工具。水利建设成就显著，大运河贯通南北。茶叶种植普及，形成重要经济产业。</p>
+            
+            <h3>宋元时期</h3>
+            <p class="modal-text">占城稻引入并推广，一年两熟制普及。江南成为全国粮仓，《陈旉农书》总结南方水田耕作经验。棉花种植推广，纺织业发展。</p>
+            
+            <h3>明清时期</h3>
+            <p class="modal-text">《农政全书》集古代农学大成，玉米、甘薯、马铃薯等美洲作物传入并推广。珠江三角洲"桑基鱼塘"生态农业模式成熟，农业商品化程度提高。</p>
+        </div>
+    </div>
+    <a href="content.html" class="home-button">返回目录</a>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">农耕文明</div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">关于项目</a>
+                    <a href="#" class="footer-link">参考文献</a>
+                    <a href="#" class="footer-link">联系我们</a>
+                    <a href="#" class="footer-link">版权声明</a>
+                </div>
+                <p class="footer-copy">© 2023 华夏农耕文明研究. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 滚动到内容
+            document.getElementById('scrollDown').addEventListener('click', function() {
+                window.scrollTo({
+                    top: document.querySelector('.main-content').offsetTop - 50,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 模态框功能
+            const modalTriggers = document.querySelectorAll('.feature-card, .btn-outline');
+            const modals = document.querySelectorAll('.modal');
+            const closeButtons = document.querySelectorAll('.close-modal');
+            
+            modalTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function() {
+                    const modalId = this.closest('.feature-card').dataset.modal;
+                    document.getElementById(modalId).classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+            
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.modal').classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            });
+            
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+            
+            // 卡片动画
+            const featureCards = document.querySelectorAll('.feature-card');
+            
+            function animateCards() {
+                featureCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, index * 200);
+                });
+            }
+            
+            // 滚动时触发动画
+            function checkScroll() {
+                if (isElementInViewport(document.querySelector('.features-grid'))) {
+                    animateCards();
+                    window.removeEventListener('scroll', checkScroll);
+                }
+            }
+            
+            window.addEventListener('scroll', checkScroll);
+            
+            // 初始检查
+            if (isElementInViewport(document.querySelector('.features-grid'))) {
+                animateCards();
+            }
+            
+            // 检查元素是否在视口中
+            function isElementInViewport(el) {
+                const rect = el.getBoundingClientRect();
+                return (
+                    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.bottom >= 0
+                );
+            }
+        });
+    </script>
+</body>
+</html>

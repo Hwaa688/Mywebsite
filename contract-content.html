@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>农业文明大数据对比</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 页面整体样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), 
+                        url('https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Noto Serif SC', serif;
+            overflow-x: hidden;
+        }
+
+        /* 标题样式 */
+        .page-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 3.5rem;
+            color: #5d4037;
+            margin: 40px 0;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: fadeInDown 1s ease-out 0.3s forwards;
+        }
+
+        /* 副标题样式 */
+        .page-subtitle {
+            font-size: 1.3rem;
+            color: #795548;
+            max-width: 800px;
+            text-align: center;
+            margin: 0 auto 60px;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeIn 1s ease-out 0.6s forwards;
+        }
+
+        /* 容器样式 */
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 80px;
+            padding: 30px;
+            margin-bottom: 80px;
+        }
+
+        /* 单个版块样式 */
+        .box {
+            width: 350px;
+            height: auto;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            padding: 0;
+            transition: all 0.5s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            border: 1px solid rgba(141, 110, 99, 0.3);
+        }
+
+        .box:nth-child(1) {
+            animation: fadeInUp 0.8s ease-out 0.9s forwards;
+        }
+
+        .box:nth-child(2) {
+            animation: fadeInUp 0.8s ease-out 1.1s forwards;
+        }
+
+        .box:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 图片样式 */
+        .box-img-container {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .box-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .box:hover .box-img {
+            transform: scale(1.1);
+        }
+
+        .box-img-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(93, 64, 55, 0.3), transparent);
+        }
+
+        /* 文字样式 */
+        .box-content {
+            padding: 25px;
+        }
+
+        .box h2 {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2rem;
+            color: #5d4037;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .box h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: #8d6e63;
+        }
+
+        .box p {
+            font-size: 1.1rem;
+            color: #5d4037;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        /* 链接样式 */
+        .contract {
+            text-decoration: none;
+            display: block;
+        }
+
+        /* 返回按钮样式 */
+        .home-button {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            padding: 15px 30px;
+            background-color: rgba(93, 64, 55, 0.8);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1.3s forwards;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-button:hover {
+            background-color: #5d4037;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .home-button::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+
+        /* 动画定义 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                gap: 50px;
+            }
+            
+            .page-title {
+                font-size: 2.5rem;
+            }
+            
+            .page-subtitle {
+                font-size: 1.1rem;
+                padding: 0 20px;
+            }
+            
+            .home-button {
+                position: static;
+                margin-top: 30px;
+                align-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="page-title">农业文明大数据对比</h1>
+    <p class="page-subtitle">穿越时空的农耕智慧，从传统到现代的农业技术演进，探索中华农耕文明的传承与创新</p>
+    
+    <div class="container">
+        <!-- 古代农业版块 -->
+        <a href="contracts/ancient/index-antient.html" class="contract">
+            <div class="box">
+                <div class="box-img-container">
+                    <img src="https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="古代农业" class="box-img">
+                </div>
+                <div class="box-content">
+                    <h2>古代农业大数据</h2>
+                    <p>探索五千年农耕文明的智慧结晶，从都江堰到曲辕犁，从二十四节气到梯田技术，了解古代农业如何滋养华夏文明。</p>
+                    <p>数据涵盖耕作技术、农具演变、水利工程、作物品种等核心内容，展现古代农业的科技成就。</p>
+                </div>
+            </div>
+        </a>
+        
+        <!-- 现代农业版块 -->
+        <a href="contracts/modern/index.html" class="contract">
+            <div class="box">
+                <div class="box-img-container">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="现代农业" class="box-img">
+                </div>
+                <div class="box-content">
+                    <h2>现代农业大数据</h2>
+                    <p>了解物联网、大数据、人工智能等前沿技术如何改变农业生产方式，从精准农业到垂直农场，从基因编辑到农业机器人。</p>
+                    <p>数据涵盖智能农业装备、精准种植技术、农业信息化系统等现代科技应用。</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <a href="content.html" class="home-button">返回目录</a>
+
+    <script>
+        // 添加卡片悬停动画
+        document.querySelectorAll('.box').forEach(box => {
+            box.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-15px) scale(1.03)';
+                this.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.15)';
+            });
+            
+            box.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
+            });
+        });
+    </script>
+</body>
+</html>

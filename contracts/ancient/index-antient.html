@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>唐代农业全景大数据</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Microsoft Yahei", "SimSun", serif;
+      background: #f8f4e8 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%238d7966" fill-opacity="0.05" d="M30,10L50,30L70,10L90,30L70,50L90,70L70,90L50,70L30,90L10,70L30,50L10,30L30,10Z"/></svg>');
+      touch-action: none;
+    }
+    
+    #page-container {
+      position: absolute;
+      width: 200vw;
+      height: 200vh;
+      will-change: transform;
+      transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    #container {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      grid-template-areas:
+        "top-left    top-center    top-right"
+        "center-left main          center-right"
+        "bottom-left bottom-center bottom-right";
+      grid-template-columns: 1fr 1.5fr 1fr;
+      grid-template-rows: 1fr 1.5fr 1fr;
+      gap: 12px;
+      padding: 15px;
+    }
+    
+    .panel {
+      background: rgba(255, 253, 245, 0.92);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(100, 80, 60, 0.15);
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(141, 121, 102, 0.15);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .panel:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 25px rgba(100, 80, 60, 0.2);
+    }
+    
+    .panel-scroll {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 15px;
+      scrollbar-width: thin;
+      scrollbar-color: #8d7966 #f5f1e8;
+    }
+    
+    .panel-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .panel-scroll::-webkit-scrollbar-thumb {
+      background-color: #8d7966;
+      border-radius: 3px;
+    }
+    
+    .panel-scroll::-webkit-scrollbar-track {
+      background-color: #f5f1e8;
+    }
+    
+    #top-left { grid-area: top-left; }
+    #top-center { grid-area: top-center; }
+    #top-right { grid-area: top-right; }
+    #center-left { grid-area: center-left; }
+    #main { grid-area: main; }
+    #center-right { grid-area: center-right; }
+    #bottom-left { grid-area: bottom-left; }
+    #bottom-center { grid-area: bottom-center; }
+    #bottom-right { grid-area: bottom-right; }
+    
+    .title {
+      color: #6b5b4d;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #d4c0a7;
+      position: relative;
+    }
+    
+    .title::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: #8d7966;
+    }
+    #title-scroll {
+      transition: transform 5s ease;
+    }
+    .data-item {
+      padding: 8px 0;
+      border-bottom: 1px dashed #d4c0a7;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .data-value {
+      color: #8d7966;
+      font-weight: bold;
+    }
+    
+    .chart-container {
+      width: 100%;
+      height: calc(100% - 40px);
+      min-height: 200px;
+    }
+    
+    #time-display {
+      background: rgba(141, 121, 102, 0.1);
+      padding: 8px;
+      border-radius: 6px;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 16px;
+      color: #6b5b4d;
+    }
+    
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #d4c0a7;
+    }
+    
+    .project-bar-container {
+      height: 24px;
+      background: #f0ebe3;
+      border-radius: 12px;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+    
+    .project-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #d4c0a7, #8d7966);
+      border-radius: 12px;
+      width: 0;
+      transition: width 1.5s ease-out;
+    }
+    
+    @media (max-width: 768px) {
+      #container {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(9, 1fr);
+        grid-template-areas:
+          "top-left"
+          "top-center"
+          "top-right"
+          "center-left"
+          "main"
+          "center-right"
+          "bottom-left"
+          "bottom-center"
+          "bottom-right";
+      }
+      
+      .panel-scroll {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="page-container">
+    <div id="container">
+      <!-- 左上：基础信息 -->
+      <div id="top-left" class="panel">
+        <div class="panel-scroll">
+          <div class="title">农业概况</div>
+          <div id="time-display">天宝十五年 五月廿三</div>
+          <div class="data-item">
+            <span>耕地面积</span>
+            <span class="data-value counter" data-target="8.3">0</span>
+          </div>
+          <div class="data-item">
+            <span>农户总数</span>
+            <span class="data-value counter" data-target="890">0</span>
+          </div>
+          <div class="data-item">
+            <span>农业人口</span>
+            <span class="data-value counter" data-target="4200">0</span>
+          </div>
+          <div class="data-item">
+            <span>粮食总产</span>
+            <span class="data-value counter" data-target="3200">0</span>
+          </div>
+          <div class="data-item">
+            <span>耕畜数量</span>
+            <span class="data-value counter" data-target="620">0</span>
+          </div>
+          <div class="data-item">
+            <span>水利工程</span>
+            <span class="data-value counter" data-target="286">0</span>
+          </div>
+          <div style="margin-top: 15px; font-size: 12px; color: #8d7966;">
+            数据来源：《新唐书·食货志》
+          </div>
+        </div>
+      </div>
+      
+      <!-- 中上：标题 -->
+      <div id="top-center" class="panel">
+        <div class="panel-scroll">
+          <div style="text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+            <h1 style="color: #6b5b4d; margin-bottom: 10px;">唐代农业全景</h1>
+            <h3 style="color: #8d7966; margin-bottom: 15px;">开元天宝盛世 (713-756)</h3>
+            <div id="dynamic-title" style="height: 30px; overflow: hidden; margin-bottom: 15px;">
+              <div id="title-scroll" style="transition: transform 0.5s ease;">
+                <div>「贞观之治奠定基础」</div>
+                <div>「开元盛世达到顶峰」</div>
+                <div>「天宝年间持续繁荣」</div>
+              </div>
+            </div>
+            <div style="font-size: 14px; color: #8d7966;">
+              据《通典》记载："开元天宝之中，耕者益力，四海之内，高山绝壑，耒耜亦满"
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 右上：农具统计 -->
+      <div id="top-right" class="panel">
+        <div class="panel-scroll">
+          <div class="title">农具普及率</div>
+          <div id="tools-chart" class="chart-container"></div>
+          <div style="margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #8d7966;">
+              <span>曲辕犁：深耕效率提升40%</span>
+              <span>普及率：68%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #8d7966; margin-top: 5px;">
+              <span>筒车：江南水田广泛使用</span>
+              <span>普及率：42%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 左中：作物分布 -->
+      <div id="center-left" class="panel">
+        <div class="panel-scroll">
+          <div class="title">作物种植结构</div>
+          <div id="crops-chart" class="chart-container"></div>
+          <div style="margin-top: 10px; font-size: 12px; color: #8d7966;">
+            <div>粟：北方旱作主粮，占35%</div>
+            <div>水稻：江南主粮，占20%</div>
+            <div>数据来源：《四时纂要》</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 中心：主地图 -->
+      <div id="main" class="panel">
+        <div class="panel-scroll">
+          <div class="title">各道粮食产量分布（万石）</div>
+          <div id="main-map" class="chart-container"></div>
+          <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <span style="font-size: 12px; color: #8d7966;">数据来源：《元和郡县图志》</span>
+            <div style="display: flex; align-items: center;">
+              <span style="font-size: 12px; margin-right: 5px; color: #8d7966;">产量:</span>
+              <div style="width: 100px; height: 8px; background: linear-gradient(90deg, #e6d5c3, #8d7966); border-radius: 4px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 右中：税收数据 -->
+      <div id="center-right" class="panel">
+        <div class="panel-scroll">
+          <div class="title">租庸调制构成</div>
+          <div id="tax-chart" class="chart-container"></div>
+          <div style="margin-top: 10px; font-size: 12px; color: #8d7966;">
+            <div>租：每丁纳粟二石</div>
+            <div>调：绢二丈、绵三两</div>
+            <div>庸：岁役二十日</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 左下：水利工程 -->
+      <div id="bottom-left" class="panel">
+        <div class="panel-scroll">
+          <div class="title">重大水利工程</div>
+          <div style="margin-bottom: 10px; font-size: 14px; color: #6b5b4d;">
+            唐代兴修水利286处，灌溉面积增加300万亩
+          </div>
+          <div>
+            <div>广通渠（关中）</div>
+            <div class="project-bar-container">
+              <div class="project-bar" data-width="90%"></div>
+            </div>
+            <div style="font-size: 12px; color: #8d7966; text-align: right;">灌溉50万亩</div>
+          </div>
+          <div style="margin-top: 15px;">
+            <div>它山堰（江南）</div>
+            <div class="project-bar-container">
+              <div class="project-bar" data-width="75%"></div>
+            </div>
+            <div style="font-size: 12px; color: #8d7966; text-align: right;">灌溉40万亩</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 中下：粮仓信息 -->
+      <div id="bottom-center" class="panel">
+        <div class="panel-scroll">
+          <div class="title">主要粮仓储量</div>
+          <div id="granary-chart" class="chart-container"></div>
+          <div style="margin-top: 10px; font-size: 12px; color: #8d7966;">
+            <div>洛口仓：储粮2400万石</div>
+            <div>含嘉仓：储粮1600万石</div>
+            <div>数据来源：《旧唐书·食货志》</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 右下：产量排名 -->
+      <div id="bottom-right" class="panel">
+        <div class="panel-scroll">
+          <div class="title">地区产量TOP5</div>
+          <div style="margin-bottom: 10px; font-size: 14px; color: #6b5b4d;">
+            天宝八年各道正仓粮储统计
+          </div>
+          <div class="ranking-item">
+            <span>1. 河南道</span>
+            <span class="data-value rank-value">4800</span>
+          </div>
+          <div class="ranking-item">
+            <span>2. 河北道</span>
+            <span class="data-value rank-value">4500</span>
+          </div>
+          <div class="ranking-item">
+            <span>3. 河东道</span>
+            <span class="data-value rank-value">3800</span>
+          </div>
+          <div class="ranking-item">
+            <span>4. 关内道</span>
+            <span class="data-value rank-value">3200</span>
+          </div>
+          <div class="ranking-item">
+            <span>5. 山南东道</span>
+            <span class="data-value rank-value">2900</span>
+          </div>
+          <div style="margin-top: 15px; font-size: 12px; color: #8d7966;">
+            单位：万石（1唐石≈59公斤）
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.2/echarts.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+  <script>
+    // 初始化所有图表
+    const initCharts = () => {
+      // 1. 农具统计图表
+      const toolsChart = echarts.init(document.getElementById('tools-chart'));
+      toolsChart.setOption({
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}%'
+        },
+        series: [{
+          name: '农具普及率',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            borderRadius: 8,
+            borderColor: '#f5f1e8',
+            borderWidth: 2
+          },
+          label: {
+            show: true,
+            formatter: '{b}: {c}%'
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.2)'
+            }
+          },
+          data: [
+            { value: 68, name: '曲辕犁' },
+            { value: 42, name: '筒车' },
+            { value: 35, name: '耧车' },
+            { value: 28, name: '耙' },
+            { value: 92, name: '镰刀' }
+          ],
+          itemStyle: {
+            color: params => ['#8d7966','#a8a797','#d4c0a7','#b5a58b','#9e8b72'][params.dataIndex]
+          }
+        }]
+      });
+
+      // 2. 作物分布图表
+      const cropsChart = echarts.init(document.getElementById('crops-chart'));
+      cropsChart.setOption({
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}%'
+        },
+        legend: {
+          orient: 'vertical',
+          right: 10,
+          top: 'center',
+          textStyle: {
+            color: '#6b5b4d'
+          }
+        },
+        series: [{
+          name: '作物分布',
+          type: 'pie',
+          radius: ['30%', '70%'],
+          center: ['40%', '50%'],
+          roseType: 'radius',
+          label: {
+            color: '#4a403a'
+          },
+          labelLine: {
+            lineStyle: {
+              color: 'rgba(100, 80, 60, 0.3)'
+            },
+            smooth: 0.2,
+            length: 10,
+            length2: 20
+          },
+          itemStyle: {
+            borderRadius: 8,
+            borderColor: '#f5f1e8',
+            borderWidth: 2
+          },
+          data: [
+            { value: 35, name: '粟（小米）' },
+            { value: 25, name: '麦类' },
+            { value: 20, name: '水稻' },
+            { value: 12, name: '豆类' },
+            { value: 5, name: '黍' },
+            { value: 3, name: '其他' }
+          ],
+          itemStyle: {
+            color: params => ['#8d7966','#a8a797','#d4c0a7','#b5a58b','#9e8b72','#e6d5c3'][params.dataIndex]
+          }
+        }]
+      });
+
+      // 3. 主地图
+      const mainMap = echarts.init(document.getElementById('main-map'));
+      fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+        .then(response => response.json())
+        .then(data => {
+          // 调整现代省份为唐代十道
+          const tangData = {
+            type: 'FeatureCollection',
+            features: data.features.map(feat => {
+              const nameMap = {
+                '河南省': '河南道',
+                '河北省': '河北道',
+                '山西省': '河东道',
+                '陕西省': '关内道',
+                '湖北省': '山南东道',
+                '江苏省': '淮南道',
+                '浙江省': '江南东道',
+                '四川省': '剑南道',
+                '甘肃省': '陇右道',
+                '广东省': '岭南道'
+              };
+              return {
+                ...feat,
+                properties: {
+                  ...feat.properties,
+                  name: nameMap[feat.properties.name] || feat.properties.name
+                }
+              };
+            })
+          };
+
+          echarts.registerMap('tangMap', tangData);
+          
+          mainMap.setOption({
+            tooltip: {
+              trigger: 'item',
+              formatter: params => {
+                const yieldData = {
+                  '河南道': 4800,
+                  '河北道': 4500,
+                  '河东道': 3800,
+                  '关内道': 3200,
+                  '山南东道': 2900,
+                  '淮南道': 2600,
+                  '江南东道': 2300,
+                  '剑南道': 2100,
+                  '陇右道': 1800,
+                  '岭南道': 1200
+                };
+                return `${params.name}<br/>粮食产量: ${yieldData[params.name] || '无数据'}万石`;
+              }
+            },
+            visualMap: {
+              min: 1000,
+              max: 5000,
+              text: ['低产', '高产'],
+              realtime: false,
+              calculable: true,
+              inRange: {
+                color: ['#e6d5c3', '#a8a797', '#8d7966']
+              },
+              textStyle: {
+                color: '#6b5b4d'
+              }
+            },
+            series: [{
+              name: '粮食产量',
+              type: 'map',
+              map: 'tangMap',
+              roam: true,
+              emphasis: {
+                label: {
+                  show: true,
+                  color: '#fff'
+                },
+                itemStyle: {
+                  areaColor: '#6b5b4d'
+                }
+              },
+              data: [
+                {name: '河南道', value: 4800},
+                {name: '河北道', value: 4500},
+                {name: '河东道', value: 3800},
+                {name: '关内道', value: 3200},
+                {name: '山南东道', value: 2900},
+                {name: '淮南道', value: 2600},
+                {name: '江南东道', value: 2300},
+                {name: '剑南道', value: 2100},
+                {name: '陇右道', value: 1800},
+                {name: '岭南道', value: 1200}
+              ],
+              itemStyle: {
+                areaColor: '#f5f1e8',
+                borderColor: '#8d7966',
+                borderWidth: 0.5
+              }
+            }]
+          });
+        });
+
+      // 4. 税收数据图表
+      const taxChart = echarts.init(document.getElementById('tax-chart'));
+      taxChart.setOption({
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}万'
+        },
+        series: [{
+          name: '税收构成',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            borderRadius: 8,
+            borderColor: '#f5f1e8',
+            borderWidth: 2
+          },
+          label: {
+            show: true,
+            formatter: '{b}: {c}万'
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: '14',
+              fontWeight: 'bold'
+            }
+          },
+          data: [
+            { value: 200, name: '租（粟）' },
+            { value: 150, name: '调（布帛）' },
+            { value: 100, name: '庸（役）' },
+            { value: 120, name: '地税' },
+            { value: 80, name: '户税' }
+          ],
+          itemStyle: {
+            color: params => ['#8d7966','#a8a797','#d4c0a7','#b5a58b','#9e8b72'][params.dataIndex]
+          }
+        }]
+      });
+
+      // 5. 粮仓数据图表
+      const granaryChart = echarts.init(document.getElementById('granary-chart'));
+      granaryChart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          },
+          formatter: '{b}<br/>储量: {c}万石'
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: ['洛口仓', '回洛仓', '含嘉仓', '太原仓', '永丰仓'],
+          axisLine: {
+            lineStyle: {
+              color: '#8d7966'
+            }
+          },
+          axisLabel: {
+            color: '#6b5b4d'
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: '储量（万石）',
+          nameTextStyle: {
+            color: '#6b5b4d'
+          },
+          axisLine: {
+            lineStyle: {
+              color: '#8d7966'
+            }
+          },
+          axisLabel: {
+            color: '#6b5b4d'
+          },
+          splitLine: {
+            lineStyle: {
+              color: ['rgba(141, 121, 102, 0.1)']
+            }
+          }
+        },
+        series: [{
+          name: '储量',
+          type: 'bar',
+          barWidth: '60%',
+          data: [2400, 1800, 1600, 1200, 900],
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#8d7966' },
+              { offset: 1, color: '#d4c0a7' }
+            ]),
+            borderRadius: [8, 8, 0, 0]
+          }
+        }]
+      });
+    };
+
+    // 初始化动画效果
+    const initAnimations = () => {
+      // 1. 数字滚动动画
+      const animateCounters = () => {
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+          const target = +counter.getAttribute('data-target');
+          const duration = 2000;
+          const start = 0;
+          const increment = target / (duration / 16);
+          let current = start;
+          
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            counter.textContent = Math.floor(current).toLocaleString();
+          }, 16);
+        });
+      };
+
+      // 2. 排名数字动画
+      const animateRanking = () => {
+        const ranks = document.querySelectorAll('.rank-value');
+        ranks.forEach(rank => {
+          const target = parseInt(rank.textContent);
+          const duration = 1500;
+          const increment = target / (duration / 16);
+          let current = 0;
+          
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            rank.textContent = Math.floor(current).toLocaleString();
+          }, 16);
+        });
+      };
+
+      // 3. 标题轮播动画
+      const animateTitle = () => {
+        const container = document.getElementById('dynamic-title');
+        const scroll = document.getElementById('title-scroll');
+        const items = scroll.children;
+        let current = 0;
+        
+        setInterval(() => {
+          current = (current + 1) % items.length;
+          scroll.style.transform = `translateY(-${current * 100}%)`;
+        }, 6000); // 6000毫秒 = 6秒
+      };
+
+      // 4. 进度条动画
+      const animateProgressBars = () => {
+        const bars = document.querySelectorAll('.project-bar');
+        bars.forEach(bar => {
+          const width = bar.getAttribute('data-width');
+          bar.style.width = width;
+        });
+      };
+
+      // 5. 时间显示更新
+      const updateTimeDisplay = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        document.getElementById('time-display').textContent = 
+          `天宝${year-742}年 ${month}月${day}日`;
+      };
+
+      animateCounters();
+      animateRanking();
+      animateTitle();
+      animateProgressBars();
+      updateTimeDisplay();
+      setInterval(updateTimeDisplay, 86400000); // 每天更新
+    };
+
+    // 初始化滑动控制
+    const initSwipeControls = () => {
+      const pageContainer = document.getElementById('page-container');
+      const hammer = new Hammer(pageContainer);
+      
+      let posX = 0;
+      let posY = 0;
+      const maxX = window.innerWidth;
+      const maxY = window.innerHeight;
+      
+      hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+      
+      hammer.on('pan', (e) => {
+        posX = Math.max(-maxX, Math.min(0, posX + e.deltaX));
+        posY = Math.max(-maxY, Math.min(0, posY + e.deltaY));
+        pageContainer.style.transform = `translate(${posX}px, ${posY}px)`;
+      });
+      
+      hammer.on('panend', (e) => {
+        const velocityX = e.velocityX * 400;
+        const velocityY = e.velocityY * 400;
+        
+        const animate = () => {
+          posX += velocityX * 0.1;
+          posY += velocityY * 0.1;
+          
+          posX = Math.max(-maxX, Math.min(0, posX));
+          posY = Math.max(-maxY, Math.min(0, posY));
+          
+          pageContainer.style.transform = `translate(${posX}px, ${posY}px)`;
+          
+          if (Math.abs(velocityX) > 1 || Math.abs(velocityY) > 1) {
+            velocityX *= 0.9;
+            velocityY *= 0.9;
+            requestAnimationFrame(animate);
+          }
+        };
+        
+        requestAnimationFrame(animate);
+      });
+      
+      // 防止面板内部滚动时触发页面滑动
+      document.querySelectorAll('.panel-scroll').forEach(panel => {
+        const panelHammer = new Hammer(panel);
+        
+        panelHammer.on('panstart', (e) => {
+          if (panel.scrollHeight > panel.clientHeight || panel.scrollWidth > panel.clientWidth) {
+            e.srcEvent.stopPropagation();
+          }
+        });
+        
+        panelHammer.on('pan', (e) => {
+          if (panel.scrollHeight > panel.clientHeight || panel.scrollWidth > panel.clientWidth) {
+            e.srcEvent.stopPropagation();
+          }
+        });
+      });
+    };
+
+    // 页面加载初始化
+    window.addEventListener('load', () => {
+      initCharts();
+      initAnimations();
+      initSwipeControls();
+      
+      // 窗口大小变化时重绘图表
+      window.addEventListener('resize', () => {
+        echarts.getInstanceByDom(document.getElementById('tools-chart'))?.resize();
+        echarts.getInstanceByDom(document.getElementById('crops-chart'))?.resize();
+        echarts.getInstanceByDom(document.getElementById('main-map'))?.resize();
+        echarts.getInstanceByDom(document.getElementById('tax-chart'))?.resize();
+        echarts.getInstanceByDom(document.getElementById('granary-chart'))?.resize();
+      });
+    });
+  </script>
+</body>
+</html>
